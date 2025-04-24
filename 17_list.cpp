@@ -3,13 +3,13 @@
 
 using namespace std;
 
-//´Ü¼ø ¿¬°á¸®½ºÆ®
+//ë‹¨ìˆœ ì—°ê²°ë¦¬ìŠ¤íŠ¸
 class SNode {
 public:
 	SNode(int data) { data_ = data; link_ = nullptr; }
 private:
 	int data_;
-	SNode* link_; // link_¶ó´Â ¸â¹öº¯¼ö´Â SNode¶ó´Â Å¬·¡½ºÀÇ ÁÖ¼Ò¸¦ ÀúÀåÇÏ´Â Æ÷ÀÎÅÍÀÌ´Ù.
+	SNode* link_; // link_ë¼ëŠ” ë©¤ë²„ë³€ìˆ˜ëŠ” SNodeë¼ëŠ” í´ë˜ìŠ¤ì˜ ì£¼ì†Œë¥¼ ì €ì¥í•˜ëŠ” í¬ì¸í„°ì´ë‹¤.
 	friend class Slinkedlist;
 };
 
@@ -17,6 +17,7 @@ private:
 class Slinkedlist {
 private:
 	SNode* head_;
+	int count_=0; // ë©¤ë²„ë³€ìˆ˜ë¡œ countë¥¼ ë§Œë“¤ê²½ìš° ì¶”ê°€í•˜ëŠ” ê²½ìš° ë¿ë§Œ ì•„ë‹ˆë¼ ì‚­ì œí•˜ëŠ” ê²½ìš°ë„ ê³ ë ¤!
 public:
 	Slinkedlist(void) { head_ = nullptr; }
 	bool Isempty(void);
@@ -25,17 +26,22 @@ public:
 	void printLinkedlist(void);
 	void removeFront(void);
 	int countNode(void);
+	//êµìˆ˜ë‹˜ ì•ˆë‚´ ì—†ì´ ê·¸ëƒ¥ ë‚´ê°€ ì‘ì„±í•´ë³¸ ë©¤ë²„í•¨ìˆ˜
+	void addFront(int data);
+	void removeRear(void);
+	bool search(int value);
+	void clear(void);
 };
 bool Slinkedlist :: Isempty(void) {
 	return head_ == nullptr;
 }
 SNode* Slinkedlist:: rearNode(void) {
-	//Çìµå°¡ nullptrÀ» °¡¸®Å°°í ÀÖÀ¸¸é while¹®ÀÌ ¾Èµ¹¾Æ°¡±â ¶§¹®¿¡ 
-	//±»ÀÌ if-else¹®À» ÀÛ¼ºÇÏÁö ¾Ê¾Æµµ µÈ´Ù.
+	//í—¤ë“œê°€ nullptrì„ ê°€ë¦¬í‚¤ê³  ìˆìœ¼ë©´ whileë¬¸ì´ ì•ˆëŒì•„ê°€ê¸° ë•Œë¬¸ì— 
+	//êµ³ì´ if-elseë¬¸ì„ ì‘ì„±í•˜ì§€ ì•Šì•„ë„ ëœë‹¤.
 		SNode* rNode = head_;
 		while (rNode->link_)
 		{
-			rNode = rNode->link_;// ¸¸¾à rNodeÀÇ ¸µÅ©°¡ nullptrÀÌ¸é, rNode°¡ ¸¶Áö¸· ³ëµå°¡ µÈ´Ù.
+			rNode = rNode->link_;// ë§Œì•½ rNodeì˜ ë§í¬ê°€ nullptrì´ë©´, rNodeê°€ ë§ˆì§€ë§‰ ë…¸ë“œê°€ ëœë‹¤.
 		}
 		return rNode;
 }
@@ -48,41 +54,94 @@ void Slinkedlist::addrear(int data){
 		SNode* rNode = rearNode();
 		rNode->link_ = newnode;
 	}
+	count_++;
 }
 void Slinkedlist::printLinkedlist(void) {
-	if (Isempty()) { cout << "Ãâ·ÂÇÒ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù." << endl; }
+	if (Isempty()) { cout << "ì¶œë ¥í•  ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤." << endl; }
 	else { 
 		SNode* tNode = head_;
-		cout << "### ÀÔ·ÂµÈ µ¥ÀÌÅÍ ###" << endl;
+		cout << "### ì…ë ¥ëœ ë°ì´í„° ###" << endl;
 
-		while (tNode) // while¹®Àº ³ëµåÀÇ ¸µÅ©°¡ nullptrÀ» ¸¸³ª¸é Á¾·áµÊ.
+		while (tNode) // whileë¬¸ì€ ë…¸ë“œì˜ ë§í¬ê°€ nullptrì„ ë§Œë‚˜ë©´ ì¢…ë£Œë¨.
 		{
-			cout<< tNode->data_<<" ->> "; //ÇöÀç ³ëµåÀÇ µ¥ÀÌÅÍ¸¦ Ãâ·ÂÇÔ.
+			cout<< tNode->data_<<" ->> "; //í˜„ì¬ ë…¸ë“œì˜ ë°ì´í„°ë¥¼ ì¶œë ¥í•¨.
 			tNode = tNode->link_;
 		}
+		cout << "nullptr" << endl;
 	}
 }
 void Slinkedlist::removeFront(void) {
 	if (Isempty()) { return; }
 	SNode* old = head_;
-	head_ = head_->link_;//¿ø·¡ Ã¹¹øÂ° ³ëµåÀÇ ¸µÅ©ÇÊµå °ª(µÎ¹øÂ° ³ëµåÀÇ ÁÖ¼Ò)À» »õ·Î¿î Çìµå·Î
+	head_ = head_->link_;//ì›ë˜ ì²«ë²ˆì§¸ ë…¸ë“œì˜ ë§í¬í•„ë“œ ê°’(ë‘ë²ˆì§¸ ë…¸ë“œì˜ ì£¼ì†Œ)ì„ ìƒˆë¡œìš´ í—¤ë“œë¡œ
 	delete old;
+	count_--;
 }
-//¸â¹öº¯¼ö·Î count ¾È¸¸µç °æ¿ì
-int Slinkedlist::countNode(void) {
-	//if (Isempty()) { return 0; }
-
-	//¿¡ÃÊ¿¡ head_°¡ nullptrÀ» °¡¸®Å°°í ÀÖÀ¸¸é, 
-	//while¹®¿¡ µé¾î°¡´Â °úÁ¤¿¡¼­ break µÇ´Ï±ñ ±»ÀÌ À§ÀÇ ¶óÀÎÀº ÀÛ¼ºÇÏÁö ¾Ê¾Æµµ ±¦ÂúÀ½.
-	int count = 0;
-
-	SNode* rNode = head_;
-	while (rNode)
-	{
-		count++;
-		rNode = rNode->link_;// rNode°¡ ±× ´ÙÀ½ ³ëµå¸¦ °¡¸®Å°µµ·Ï ÇØ¾ßÇÔ.
+int Slinkedlist::countNode(void) { return count_; }
+//ë©¤ë²„ë³€ìˆ˜ë¡œ count ì•ˆë§Œë“  ê²½ìš°
+//int Slinkedlist::countNode(void) {
+//	//if (Isempty()) { return 0; }
+//
+//	//ì—ì´ˆì— head_ê°€ nullptrì„ ê°€ë¦¬í‚¤ê³  ìˆìœ¼ë©´, 
+//	//whileë¬¸ì— ë“¤ì–´ê°€ëŠ” ê³¼ì •ì—ì„œ break ë˜ë‹ˆê¹ êµ³ì´ ìœ„ì˜ ë¼ì¸ì€ ì‘ì„±í•˜ì§€ ì•Šì•„ë„ ê´œì°®ìŒ.
+//	int count = 0;
+//
+//	SNode* rNode = head_;
+//	while (rNode)
+//	{
+//		count++;
+//		rNode = rNode->link_;// rNodeê°€ ê·¸ ë‹¤ìŒ ë…¸ë“œë¥¼ ê°€ë¦¬í‚¤ë„ë¡ í•´ì•¼í•¨.
+//	}
+//	return count;
+//}
+void Slinkedlist::addFront(int data) {
+	SNode* fNode = new SNode(data); // ìƒˆë¡œìš´ ë…¸ë“œë¥¼ ë§Œë“¤ê³  ê·¸ê±°ë¥¼ ì„ì‹œë¡œ fNodeì— ì£¼ì†Œë¥¼ ì €ì¥í•œë‹¤.
+	//ë§Œì•½ í—¤ë“œê°€ ë¹„ì–´ìˆë‹¤ë©´ ì–´ë–¤ ë…¸ë“œë„ ì—†ê¸° ë•Œë¬¸ì— ì´ê²ƒì´ ì²«ë²ˆì§¸ ë…¸ë“œê°€ ë˜ì–´ì•¼ í•œë‹¤.
+	if (Isempty()) { head_ = fNode; }
+	//ê¸°ì¡´ì˜ í—¤ë”ì—ëŠ” ìƒˆë¡œìš´ ë…¸ë“œì˜ ì£¼ì†Œê°€ ì €ì¥ë˜ì–´ì•¼ í•œë‹¤.
+	//ê·¸ë¦¬ê³  ìƒˆë¡œë§Œë“¤ì–´ì§„ ë…¸ë“œì˜ ë§í¬í•„ë“œì—ëŠ” ì›ë˜ì˜ í—¤ë”ì˜ ê°’ì´ ì €ì¥ë˜ì–´ì•¼ í•œë‹¤.
+	else {fNode->link_ = head_;
+	head_ = fNode;
 	}
-	return count;
+	count_++;
+}
+void Slinkedlist :: removeRear(void) {
+	if (head_ == nullptr) { return; }
+	if (head_->link_ == nullptr) { 
+		delete head_; 
+		head_ = nullptr; 
+	}
+	else{
+		SNode* rNode = head_;
+			while (rNode)//head_ê°€ nullptrì¸ ê²½ìš°ë¥¼ ìƒê°í•´ì„œ whileì˜ ì¡°ê±´ì„ rNodeë¡œ ê±¸ì—ˆë‹¤.
+			{
+				if (((rNode->link_)->link_)==nullptr) { break; };
+				rNode = rNode->link_;
+			}
+		delete rNode->link_;
+		rNode->link_ = nullptr;
+		}
+	count_--;
+}
+bool Slinkedlist::search(int value) {
+	bool state = false;
+	if (Isempty()) { return false; }
+	SNode* newNode = head_;
+	while(newNode)
+	{
+		if (newNode->data_ == value) { state = true; break; }
+		else { newNode = newNode->link_; }
+	}
+	return state;
+}
+void Slinkedlist::clear(void) {
+	SNode* old = head_;
+	while(head_){	
+		head_ = old->link_;
+		delete old;
+		old = head_;
+	}
+	count_ = 0;
 }
 
 
@@ -91,11 +150,13 @@ int main(void) {
 
 	while(1){
 		int temp;
-		cout << "µ¥ÀÌÅÍ¸¦ ÀÔ·ÂÇÏ¼¼¿ä(Á¾·á -1): "; cin >> temp;
+		cout << "ë°ì´í„°ë¥¼ ì…ë ¥í•˜ì„¸ìš”(ì¢…ë£Œ -1): "; cin >> temp;
 		if (temp == -1) { break; }
 		test.addrear(temp);
+		
 	}
+	test.removeRear();
 	test.printLinkedlist();
-	cout<<"³ëµåÀÇ °³¼ö´Â : "<< test.countNode()<<endl;
+	cout<<"ë…¸ë“œì˜ ê°œìˆ˜ëŠ” : "<< test.countNode()<<endl;
 	return 0;
 }
